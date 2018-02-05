@@ -3,27 +3,17 @@
 using namespace std;
 
 struct Edge {
-	int dest;    //下一个顶点
+	int dest;    //下一个顶点的下标
 	int cost;    //边的权值 
-	Edge * link;  //下一条边
+	Edge * next;  //下一条边
 	Edge * prior; //前一条边
+        Edge * link; //邻边 eg:（1,2）（2,1）
 };
 
 struct Vertex {
 	int degree;   //结点的度
-	char * num;
+	char * name;  //风景名
 	Edge * adj;   //头指针
-};
-
-struct RowColWeight
-{
-	int row = -1;							//行下标
-	int col = -1;							//列下标
-	int weight = 0;							//权值
-};
-
-struct node {
-	char * num;
 };
 
 struct hashver {                            //点的hash表中所存的数据（即点名->下标）
