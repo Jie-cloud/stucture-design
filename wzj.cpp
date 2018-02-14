@@ -56,14 +56,18 @@ bool Graphlnk::removeVertex(int v)
 			if (p->next != NULL) {
 				p->next->prior = p->prior;
 			}
-			s->prior->next = s->next;
+			if (s->prior != NULL)
+				s->prior->next = s->next;
+			else Nodeintable[p->dest].adj = s->next;
 			if (s->next != NULL) {
 				s->next->prior = s->prior;
 			}
 		}
 		else {
 			s = p->link;
+			if (s->prior != NULL)
 			s->prior->next = s->next;
+			else Nodeintable[p->dest].adj = s->next;
 			if (s->next != NULL) {
 				s->next->prior = s->prior;
 			}
@@ -74,7 +78,10 @@ bool Graphlnk::removeVertex(int v)
 		numEdges--;      //边数减一
 	}
 	//删除完点后将最后一个点移过来 eg：（1，numVertices）->（1，v）
-
+	if (v == numVertices) {
+		numVertices--;
+		return true;
+	}
 	Nodeintable[v].name = Nodeintable[numVertices-1].name;
 	Nodeintable[v].adj = Nodeintable[numVertices-1].adj;
 	p = Nodeintable[numVertices-1].adj;
