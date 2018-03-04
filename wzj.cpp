@@ -1,4 +1,6 @@
+#include<algorithm>
 #include"Graphlnk.h"
+#include"Minheap.h"
 
 int Graphlnk::getFirstNeighbor(int v) {
 	if (v != -1)
@@ -136,7 +138,7 @@ bool Graphlnk::insertEdge(int v1, int v2, int cost)
 void init(Graphlnk &g)
 {
 	int num = -1;
-	string name[100];
+	string name[t2];
 	ifstream in("city.txt");
 	while (!in.eof()) {
 		in >> name[++num];
@@ -181,7 +183,7 @@ Graphlnk::Graphlnk(int sz = MaxVeitices) {
 
 void mylnk(Graphlnk & G)
 {
-	int i, j;
+	int i;
 	cout << "-------------------------------------------------------------------------------------------------------------------------------" << endl;
 	cout << "                                          风景路线规划系统" << endl;
 	cout << "                                                                                            制作人：Mr.Li & Mr.Wei             " << endl;
@@ -211,6 +213,202 @@ void mylnk(Graphlnk & G)
 				cout << setw(10) << G.getWeight(i, j);
 		}
 		cout << "\n";
+	}
+	cout << endl;*/
+}
+
+
+void mintree(Graphlnk&g,MinHeap<int>&h) {
+	int *matrix = new int[2*g.NumberOfVertices()-2];
+	for (int i=0; i < 2 * g.NumberOfVertices()-2; i++) {
+		matrix[i] = 0;
+	}
+	for (int i = 0; i < g.NumberOfVertices(); i++) {
+		Edge * p = g.Nodeintable[i].adj;
+		while (p != NULL) {
+			int cost;
+			/*c.dest1 = i;
+			c.dest2 = p->dest;
+			c.cost = p->cost;*/
+			if (p->dest > i)
+				cost = t1 * p->cost + t2 * p->dest + i;
+			else cost = t1 * p->cost + t2 * i + p->dest;
+			p = p->next;
+			h.Insert(cost);
+		}
+	}
+	int *a = new int[g.NumberOfVertices()];
+	for (int i = 0; i < g.NumberOfVertices(); i++) {
+		a[i] = t1;
+	}
+	int count = 0;
+	while (count != g.NumberOfVertices() - 1) {
+		int x1, x2, pa, ra, pb, rb, pnum, rnum;
+		h.RemoveMin(x1);
+		pa = x1 - x1 / t1 * t1 - (x1 - x1 / t1 * t1) / t2 * t2;
+		pb = (x1 - x1 / t1 * t1) / t2;
+		pnum = x1 / t1;
+		h.RemoveMin(x2);
+		ra = (x2 - x2 / t1 * t1) / t2;
+		rb = x2 - x2 / t1 * t1 - (x2 - x2 / t1 * t1) / t2 * t2;
+		rnum = x2 / t1;
+		if (a[pa] == t1 && a[pb] == t1) {
+			a[pa] = pb;
+			a[pb] = -2;
+		}
+		else {
+			if (a[pa] < t1 && a[pb] == t1) {
+				a[pb] = pa;
+				int i = pa;
+				while (a[i] >= 0) {
+					i = a[i];
+				}a[i]--;
+			}
+			else if (a[pb] < t1 && a[pa] == t1) {
+				a[pa] = pb;
+				int i = pb;
+				while (a[i] >= 0) {
+					i = a[i];
+				}a[i]--;
+			}
+			else if (a[pb] < 0 && a[pa] < 0) {
+				a[pb] += a[pa];
+				a[pa] = pb;
+			}
+			else if (a[pb] < t1 && a[pa] < t1) {
+				int j = pa, k = pb;
+				while (a[j] >= 0) {
+					j = a[j];
+				}
+				while (a[k] >= 0) {
+					k = a[k];
+				}
+				if (a[j] == a[k])continue;
+				else {
+					a[j] += a[k];
+					int cur1 = pb;
+					int cur2 = a[pb];
+					a[pb] = pa;
+					while (cur2 >= 0) {
+						int cur3 = cur2;
+						cur2 = a[cur2];
+						a[cur3] = cur1;
+						cur1 = cur3;
+					}
+				}
+			}
+		}
+		matrix[count] = pa*t1*10 + pb*t2*10 + pnum;
+		matrix[count+g.NumberOfVertices()-1] = ra*t1*10 + rb*t2*10 + rnum;
+		count++;
+	}
+	sort(matrix, matrix + 2 * g.NumberOfVertices() - 2);
+	/*for (int j = 0; j < 2 * g.NumberOfVertices() - 2; j++) {
+		cout << matrix[j] << endl;
 	}*/
-	cout << endl;
+	//for (int i = 0; i < g.NumberOfVertices(); ) 	cout << a[i++] << endl;
+	cout << "    风景名称:       ";
+	for (int i = 0; i < g.NumberOfVertices(); i++) {
+		g.getValue(i);
+	}cout << endl;
+	count = 0;
+	for (int i = 0; i < g.NumberOfVertices(); i++)
+	{
+		cout << "    ";
+		g.getValue(i);
+		for (int j = 0; j < g.NumberOfVertices(); j++)
+		{
+			if (i != matrix[count] / (10 * t1) || j != (matrix[count] - matrix[count] / (10 * t1) * 10 * t1) / (10 * t2))
+				cout << right << setw(10) << "Max";
+			else {
+				cout << setw(10) << matrix[count] - matrix[count] / (10 * t1) * 10 * t1 - (matrix[count] - matrix[count] / (10 * t1) * 10 * t1) / (10 * t2) * 10 * t2;
+				count++;
+			}
+		}
+		cout << "\n";
+	}
+	cin >> a[0]; //保留输出矩阵
+}
+
+
+void mintree2(Graphlnk&g, MinHeap<int>&h) {
+	int *matrix = new int[2 * g.NumberOfVertices() - 2];
+	cout << "您想从何点发散：";
+	int i; cin >> i;        //用hash表替代选择
+	int *num = new int[g.NumberOfVertices()];
+	int count = 0;
+	int *a = new int[g.NumberOfVertices()];
+	for (int j = 0; j < g.NumberOfVertices(); j++) {
+		a[j] = 0;
+	}
+	Edge * p = g.Nodeintable[i].adj;
+	while (p != NULL) {
+		int cost;
+		cost = t1 * p->cost + t2 * i + p->dest;
+		p = p->next;
+		h.Insert(cost);
+	}
+	a[i] = 1;
+	while (count !=g.NumberOfVertices()-1) {
+		int x; h.RemoveMin(x);
+		int pa = (x - x / t1 * t1) / t2;
+		int pb = x - x / t1 * t1 - (x - x / t1 * t1) / t2 * t2;
+		int pnum = x / t1;
+		if (a[pa] == 0 && a[pb] == 1) {
+			a[pa] = 1;
+			p = g.Nodeintable[pa].adj;
+			num[count] = pa * t2 + pb;
+			matrix[count] = pa*t1 * 10 + pb*t2 * 10 + pnum;
+			matrix[count + g.NumberOfVertices() - 1] = pb*t1 * 10 + pa*t2 * 10 + pnum;
+			count++;
+			i = pa;
+			while (p != NULL) {
+				int cost;
+				cost = t1 * p->cost + t2 * i + p->dest;
+				p = p->next;
+				h.Insert(cost);
+			}
+		}
+		else if (a[pa] == 1 && a[pb] == 0) {
+			a[pb] = 1;
+			p = g.Nodeintable[pb].adj;
+			num[count] = pa * t2 + pb;
+			matrix[count] = pa*t1 * 10 + pb*t2 * 10 + pnum;
+			matrix[count + g.NumberOfVertices() - 1] = pb*t1 * 10 + pa*t2 * 10 + pnum;
+			count++;
+			i = pb;
+			while (p != NULL) {
+				int cost;
+				cost = t1 * p->cost + t2 * i + p->dest;
+				p = p->next;
+				h.Insert(cost);
+			}
+		}
+		else continue;
+	}
+    /*	for (int j = 0; j < g.NumberOfVertices()-1; j++) {
+		cout << num[j] << endl;
+	}*/
+	sort(matrix, matrix + 2 * g.NumberOfVertices() - 2);
+	cout << "    风景名称:       ";
+	for (int i = 0; i < g.NumberOfVertices(); i++) {
+		g.getValue(i);
+	}cout << endl;
+	count = 0;
+	for (int i = 0; i < g.NumberOfVertices(); i++)
+	{
+		cout << "    ";
+		g.getValue(i);
+		for (int j = 0; j < g.NumberOfVertices(); j++)
+		{
+			if (i != matrix[count] / (10 * t1) || j != (matrix[count] - matrix[count] / (10 * t1) * 10 * t1) / (10 * t2))
+				cout << right << setw(10) << "Max";
+			else {
+				cout << setw(10) << matrix[count] - matrix[count] / (10 * t1) * 10 * t1 - (matrix[count] - matrix[count] / (10 * t1) * 10 * t1) / (10 * t2) * 10 * t2;
+				count++;
+			}
+		}
+		cout << "\n";
+	}
+	cin >> num[0];
 }
